@@ -1,6 +1,5 @@
 package rest;
 
-import entities.RenameMe;
 import entities.Role;
 import entities.User;
 import utils.EMF_Creator;
@@ -116,7 +115,7 @@ public class DemoResourceTest {
 
     @Test
     public void testServerIsUp() {
-        given().when().get("/xxx").then().statusCode(200);
+        given().when().get("/info").then().statusCode(200);
     }
 
     //This test assumes the database contains two rows

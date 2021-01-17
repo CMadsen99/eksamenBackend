@@ -5,15 +5,15 @@
  */
 package rest;
 
-import dto.ProductDTO;
-import dto.UserDTO;
-import entities.Favorit;
+import dto.SportDTO;
+import dto.SportTeamDTO;
 import entities.Role;
+import entities.Sport;
+import entities.SportTeam;
 import entities.User;
-import facades.FavoritFacade;
+import facades.SportFacade;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
-import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import java.io.IOException;
 import java.net.URI;
@@ -39,17 +39,18 @@ import utils.EMF_Creator;
  *
  * @author Acer
  */
-public class ProductResourceTest {
-
+public class SportResourceTest {    
+    
     private static EntityManagerFactory emf;
-    private static FavoritFacade facade;
+    private static SportFacade facade;
     User user;
     User admin;
-    User both;
     Role userRole;
     Role adminRole;
-    Favorit fav1;
-    Favorit fav2;
+    Sport s1;
+    Sport s2;
+    SportTeam st1;
+    SportTeam st2;
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
@@ -105,7 +106,8 @@ public class ProductResourceTest {
             em.getTransaction().begin();
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
-            em.createNamedQuery("Favorit.deleteAllRows").executeUpdate();
+            em.createNamedQuery("SportTeam.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Sport.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -124,23 +126,36 @@ public class ProductResourceTest {
         EntityManager em = emf.createEntityManager();
         try {
             user = new User("user", "hello", "user@mail.dk", "12345678");
+            admin = new User("admin", "1234", "admin@mail.dk", "87654321");
+            
+            userRole = new Role("user");
+            adminRole = new Role("admin");
+            
+            s1 = new Sport("Fodbold", "Spark til bolden");
+            s2 = new Sport("Håndbold", "Kast bolden");
+            
+            st1 = new SportTeam(600, "BSF", 5, 99);
+            st2 = new SportTeam(900, "Skovlunde Håndbold", 9, 75);
 
             em.getTransaction().begin();
-            userRole = new Role("user");
-            user.addRole(userRole);
-            fav1 = new Favorit("1", "tv", "hardgood", "50", "5", "tvs.dk", "tv.jpg", "very true");
-            user.addFavorit(fav1);
-            fav2 = new Favorit("2", "radio", "hardgood", "36", "7", "tvs.dk/radio", "radio.jpg", "true");
-            user.addFavorit(fav2);
 
-            em.createNamedQuery("Favorit.deleteAllRows").executeUpdate();
+            user.addRole(userRole);
+            admin.addRole(adminRole);
+            
+            s1.addSportTeam(st1);
+            s2.addSportTeam(st2);
+
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
+            em.createNamedQuery("SportTeam.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Sport.deleteAllRows").executeUpdate();
 
             em.persist(userRole);
+            em.persist(adminRole);
             em.persist(user);
-            em.persist(fav1);
-            em.persist(fav2);
+            em.persist(admin);
+            em.persist(s1);
+            em.persist(s2);
 
             em.getTransaction().commit();
         } finally {
@@ -154,63 +169,86 @@ public class ProductResourceTest {
     }
 
     @Test
-    public void testGetAllFavorites() throws Exception {
+    public void testGetAllSports() throws Exception {
 
-        List<ProductDTO> productsDTO;
-        productsDTO = given()
+        List<SportDTO> sportsDTO;
+        sportsDTO = given()
                 .contentType("application/json")
                 .when()
-                .get("/products/favorites/" + user.getUserName()).then()
-                .extract().body().jsonPath().getList("all", ProductDTO.class);
+                .get("/sports/all/").then()
+                .extract().body().jsonPath().getList("all", SportDTO.class);
 
-        assertThat(productsDTO, iterableWithSize(2));
+        assertThat(sportsDTO, iterableWithSize(2));
     }
 
     @Test
-    public void testAddFavorit() throws Exception {
+    public void testAddSport() throws Exception {
 
-        Favorit fav3 = new Favorit("3", "ovn", "hardgood", "200", "200", "tvs.dk/oven", "oven.jpg", "false");
-        ProductDTO pDTO = new ProductDTO(fav3);
+        Sport s3 = new Sport("Baseball", "Sving battet");
+        SportDTO s3DTO = new SportDTO(s3);
+        login("admin", "1234");
         given()
                 .contentType("application/json")
-                .body(pDTO)
+                .header("x-access-token", securityToken)
+                .body(s3DTO)
                 .when()
-                .post("/products/favorites/" + user.getUserName())
+                .post("/sports")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
-                .body("sku", equalTo("3"))
-                .body("name", equalTo("ovn"))
-                .body("type", equalTo("hardgood"));
+                .body("sportName", equalTo(s3.getSportName()))
+                .body("sportDescription", equalTo(s3.getSportDescription()));
         
-        List<ProductDTO> productsDTO;
-        productsDTO = given()
+        List<SportDTO> sportsDTO;
+        sportsDTO = given()
                 .contentType("application/json")
                 .when()
-                .get("/products/favorites/" + user.getUserName()).then()
-                .extract().body().jsonPath().getList("all", ProductDTO.class);
+                .get("/sports/all/").then()
+                .extract().body().jsonPath().getList("all", SportDTO.class);
 
-        assertThat(productsDTO, iterableWithSize(3));
+        assertThat(sportsDTO, iterableWithSize(3));
+    }
+
+    @Test
+    public void testGetAllSportTeams() throws Exception {
+
+        List<SportTeamDTO> sportTeamsDTO;
+        sportTeamsDTO = given()
+                .contentType("application/json")
+                .when()
+                .get("/sports/teams/all/").then()
+                .extract().body().jsonPath().getList("all", SportTeamDTO.class);
+
+        assertThat(sportTeamsDTO, iterableWithSize(2));
     }
     
-     @Test
-    public void testDeleteFavorit() throws Exception {
+    @Test
+    public void testAddSportTeam() throws Exception {
+
+        SportTeam st3 = new SportTeam(500, "KB", 7, 95);
+        SportTeamDTO st3DTO = new SportTeamDTO(st3);
+        login("admin", "1234");
         given()
                 .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(st3DTO)
                 .when()
-                .delete("/products/favorites/" + fav1.getSku() + "/users/" + user.getUserName())
+                .post("/sports/teams/" + s1.getSportName())
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.OK_200.getStatusCode());
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("pricePerYear", equalTo(st3.getPricePerYear()))
+                .body("teamName", equalTo(st3.getTeamName()))
+                .body("minAge", equalTo(st3.getMinAge()))
+                .body("maxAge", equalTo(st3.getMaxAge()));
         
-        List<ProductDTO> productsDTO;
-        productsDTO = given()
+        List<SportTeamDTO> sportTeamsDTO;
+        sportTeamsDTO = given()
                 .contentType("application/json")
                 .when()
-                .get("/products/favorites/" + user.getUserName()).then()
-                .extract().body().jsonPath().getList("all", ProductDTO.class);
+                .get("/sports/teams/all/").then()
+                .extract().body().jsonPath().getList("all", SportTeamDTO.class);
 
-
-        assertThat(productsDTO, iterableWithSize(1));
+        assertThat(sportTeamsDTO, iterableWithSize(3));
     }
 }

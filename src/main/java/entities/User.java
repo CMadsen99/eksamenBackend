@@ -49,9 +49,6 @@ public class User implements Serializable {
     @NotNull
     private String phoneNumber;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.PERSIST)
-    List<Favorit> favorites;
-
     public List<String> getRolesAsStrings() {
         if (roleList.isEmpty()) {
             return null;
@@ -77,7 +74,6 @@ public class User implements Serializable {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.roleList = new ArrayList<>();
-        this.favorites = new ArrayList<>();
     }
 
     public String getUserName() {
@@ -129,21 +125,5 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    public List<Favorit> getFavorites() {
-        return favorites;
-    }
 
-    public void addFavorit(Favorit favorit) {
-        if (favorit != null) {
-            this.favorites.add(favorit);
-            favorit.getUsers().add(this);
-        }
-    }
-
-    public void removeFavorit(Favorit favorit) {
-        if (favorit != null) {
-            this.favorites.remove(favorit);
-            favorit.getUsers().remove(this);
-        }
-    }
 }

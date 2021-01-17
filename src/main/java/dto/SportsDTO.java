@@ -5,24 +5,26 @@
  */
 package dto;
 
-import entities.Favorit;
+import entities.Sport;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
- * @author jacobsimonsen
+ * @author Acer
  */
-public class ProductsDTO {
-     List<ProductDTO> all = new ArrayList();
+public class SportsDTO {
+    
+    List<SportDTO> all = new ArrayList();
 
-    public ProductsDTO(List<Favorit> favoritEntities) {
-        favoritEntities.forEach((f) -> {
-            all.add(new ProductDTO(f));
+    public SportsDTO(List<Sport> sportEntities) {
+        sportEntities.forEach((s) -> {
+            all.add(new SportDTO(s));
         });
     }
 
-    public List<ProductDTO> getAll() {
+    public List<SportDTO> getAll() {
         return all;
     }
+    
 }
