@@ -13,6 +13,7 @@ import entities.SportTeam;
  */
 public class SportTeamDTO {
     
+    int id;
     int pricePerYear;
     String teamName;
     int minAge;
@@ -26,12 +27,21 @@ public class SportTeamDTO {
     }
     
     public SportTeamDTO(SportTeam sportTeam) {
+        this.id = sportTeam.getId();
         this.pricePerYear = sportTeam.getPricePerYear();
         this.teamName = sportTeam.getTeamName();
         this.minAge = sportTeam.getMinAge();
         this.maxAge = sportTeam.getMaxAge();
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }    
+    
     public int getPricePerYear() {
         return pricePerYear;
     }

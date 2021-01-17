@@ -16,8 +16,10 @@ import facades.SportFacade;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -72,6 +74,26 @@ public class SportResource {
     public String getAllSportTeams() {
         SportTeamsDTO stsDTO = FACADE.getAllSportTeams();
         return GSON.toJson(stsDTO);
+    }
+    
+    @Path("teams/{id}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
+    public String deleteSportTeam(@PathParam("id") int id) {
+        SportTeamDTO stDeleted = FACADE.deleteSportTeam(id);
+        return GSON.toJson(stDeleted);
+    }
+
+    @Path("teams/{id}")
+    @PUT
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @RolesAllowed("admin")
+    public String editSportTeam(@PathParam("id") int id, String sportTeam) {
+        SportTeamDTO stDTO = GSON.fromJson(sportTeam, SportTeamDTO.class);
+        SportTeamDTO stEdited = FACADE.editSportTeam(stDTO, id);
+        return GSON.toJson(stEdited);
     }
     
 }

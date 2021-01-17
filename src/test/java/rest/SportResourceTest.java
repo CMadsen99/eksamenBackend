@@ -7,6 +7,7 @@ package rest;
 
 import dto.SportDTO;
 import dto.SportTeamDTO;
+import dto.UserDTO;
 import entities.Role;
 import entities.Sport;
 import entities.SportTeam;
@@ -14,6 +15,7 @@ import entities.User;
 import facades.SportFacade;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import java.io.IOException;
 import java.net.URI;
@@ -32,6 +34,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
 
@@ -39,8 +42,8 @@ import utils.EMF_Creator;
  *
  * @author Acer
  */
-public class SportResourceTest {    
-    
+public class SportResourceTest {
+
     private static EntityManagerFactory emf;
     private static SportFacade facade;
     User user;
@@ -127,13 +130,13 @@ public class SportResourceTest {
         try {
             user = new User("user", "hello", "user@mail.dk", "12345678");
             admin = new User("admin", "1234", "admin@mail.dk", "87654321");
-            
+
             userRole = new Role("user");
             adminRole = new Role("admin");
-            
+
             s1 = new Sport("Fodbold", "Spark til bolden");
             s2 = new Sport("Håndbold", "Kast bolden");
-            
+
             st1 = new SportTeam(600, "BSF", 5, 99);
             st2 = new SportTeam(900, "Skovlunde Håndbold", 9, 75);
 
@@ -141,7 +144,7 @@ public class SportResourceTest {
 
             user.addRole(userRole);
             admin.addRole(adminRole);
-            
+
             s1.addSportTeam(st1);
             s2.addSportTeam(st2);
 
@@ -198,7 +201,7 @@ public class SportResourceTest {
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("sportName", equalTo(s3.getSportName()))
                 .body("sportDescription", equalTo(s3.getSportDescription()));
-        
+
         List<SportDTO> sportsDTO;
         sportsDTO = given()
                 .contentType("application/json")
@@ -221,11 +224,12 @@ public class SportResourceTest {
 
         assertThat(sportTeamsDTO, iterableWithSize(2));
     }
-    
+
     @Test
     public void testAddSportTeam() throws Exception {
 
         SportTeam st3 = new SportTeam(500, "KB", 7, 95);
+        st3.setId(0);
         SportTeamDTO st3DTO = new SportTeamDTO(st3);
         login("admin", "1234");
         given()
@@ -241,7 +245,7 @@ public class SportResourceTest {
                 .body("teamName", equalTo(st3.getTeamName()))
                 .body("minAge", equalTo(st3.getMinAge()))
                 .body("maxAge", equalTo(st3.getMaxAge()));
-        
+
         List<SportTeamDTO> sportTeamsDTO;
         sportTeamsDTO = given()
                 .contentType("application/json")
@@ -250,5 +254,48 @@ public class SportResourceTest {
                 .extract().body().jsonPath().getList("all", SportTeamDTO.class);
 
         assertThat(sportTeamsDTO, iterableWithSize(3));
+    }
+
+    @Test
+    public void testEditSportTeam() throws Exception {
+
+        SportTeamDTO stDTO = new SportTeamDTO(st1);
+        stDTO.setMaxAge(50);
+        login("admin", "1234");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(stDTO)
+                .when()
+                .put("sports/teams/" + st1.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("pricePerYear", equalTo(st1.getPricePerYear()))
+                .body("teamName", equalTo(st1.getTeamName()))
+                .body("minAge", equalTo(st1.getMinAge()))
+                .body("maxAge", equalTo(stDTO.getMaxAge()));
+    }
+    
+    @Test
+    public void testDeleteSportTeam() throws Exception {
+        login("admin", "1234");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .delete("sports/teams/" + st2.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode());
+        
+        List<SportTeamDTO> sportTeamsDTO;
+        sportTeamsDTO = given()
+                .contentType("application/json")
+                .when()
+                .get("/sports/teams/all/").then()
+                .extract().body().jsonPath().getList("all", SportTeamDTO.class);
+
+        assertThat(sportTeamsDTO, iterableWithSize(1));
     }
 }

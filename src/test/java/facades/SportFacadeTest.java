@@ -117,7 +117,21 @@ public class SportFacadeTest {
         SportTeamDTO stDTO = new SportTeamDTO(789, "KB", 5, 99);
         SportTeamDTO stAdded = facade.addSportTeam(stDTO, s1.getSportName());
         assertEquals(stDTO.getPricePerYear(), stAdded.getPricePerYear(), "Expect the same price per year");
-        assertEquals(4, facade.getAllSportTeams().getAll().size(), "Except four sportteams");
+        assertEquals(4, facade.getAllSportTeams().getAll().size(), "Except four sport teams");
+    }
+    
+    @Test
+    public void testEditSportTeam() {
+        SportTeamDTO stDTO = new SportTeamDTO(st1);
+        stDTO.setTeamName("KB");
+        SportTeamDTO stEdited = facade.editSportTeam(stDTO, st1.getId());
+        assertEquals(stEdited.getTeamName(), stDTO.getTeamName(), "Except the same team name");
+    }
+    
+    @Test
+    public void testDeleteSportTeam() {
+        SportTeamDTO stDTO = facade.deleteSportTeam(st3.getId());
+        assertEquals(2, facade.getAllSportTeams().getAll().size(), "Excepts two sport teams");
     }
     
 }

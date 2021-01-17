@@ -108,4 +108,60 @@ public class SportFacade {
             em.close();
         }
     }
+    
+    public SportTeamDTO editSportTeam(SportTeamDTO st, int id) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            SportTeam sTeam = em.find(SportTeam.class, id);
+            
+            if (st.getTeamName().length() != 0) {
+                sTeam.setTeamName(st.getTeamName());
+            }
+            
+            if (st.getPricePerYear() > 0) {
+                sTeam.setPricePerYear(st.getPricePerYear());
+            }
+            
+            if (st.getMinAge() > 0) {
+                sTeam.setMinAge(st.getMinAge());
+            }
+            
+            if (st.getMaxAge() > 0) {
+                sTeam.setMaxAge(st.getMaxAge());
+            }                     
+
+            em.getTransaction().begin();
+
+            em.persist(sTeam);
+
+            em.getTransaction().commit();
+
+            SportTeamDTO stDTO = new SportTeamDTO(sTeam);
+            return stDTO;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public SportTeamDTO deleteSportTeam(int id) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            SportTeam sTeam = em.find(SportTeam.class, id);
+
+            em.getTransaction().begin();
+
+            em.remove(sTeam);
+
+            em.getTransaction().commit();
+
+            SportTeamDTO stDTO = new SportTeamDTO(sTeam);
+
+            return stDTO;
+
+        } finally {
+            em.close();
+        }
+    }
 }
