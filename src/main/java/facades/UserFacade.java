@@ -13,7 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import security.errorhandling.AuthenticationException;
 
 /**
- * @author lam@cphbusiness.dk
+ * @author christianmadsen
  */
 public class UserFacade {
 

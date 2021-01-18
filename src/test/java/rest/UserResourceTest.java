@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package rest;
 
 import dto.UserDTO;
@@ -35,7 +30,7 @@ import utils.EMF_Creator;
 
 /**
  *
- * @author Acer
+ * @author christianmadsen
  */
 public class UserResourceTest {
 

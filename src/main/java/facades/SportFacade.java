@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package facades;
 
 import dto.SportDTO;
@@ -18,11 +13,11 @@ import javax.persistence.TypedQuery;
 
 /**
  *
- * @author Acer
+ * @author christianmadsen
  */
 public class SportFacade {
-    
-     private static EntityManagerFactory emf;
+
+    private static EntityManagerFactory emf;
 
     private static SportFacade instance;
 
@@ -41,9 +36,9 @@ public class SportFacade {
         }
         return instance;
     }
-    
+
     public SportDTO addSport(SportDTO sDTO) {
-            
+
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -61,7 +56,7 @@ public class SportFacade {
             em.close();
         }
     }
-    
+
     public SportsDTO getAllSports() {
         EntityManager em = emf.createEntityManager();
         try {
@@ -73,15 +68,15 @@ public class SportFacade {
             em.close();
         }
     }
-    
+
     public SportTeamDTO addSportTeam(SportTeamDTO stDTO, String sportName) {
-            
+
         EntityManager em = emf.createEntityManager();
 
         try {
 
             SportTeam sTeam = new SportTeam(stDTO.getPricePerYear(), stDTO.getTeamName(), stDTO.getMinAge(), stDTO.getMaxAge());
-            
+
             Sport sport = em.find(Sport.class, sportName);
             sport.addSportTeam(sTeam);
 
@@ -96,7 +91,7 @@ public class SportFacade {
             em.close();
         }
     }
-        
+
     public SportTeamsDTO getAllSportTeams() {
         EntityManager em = emf.createEntityManager();
         try {
@@ -108,28 +103,28 @@ public class SportFacade {
             em.close();
         }
     }
-    
+
     public SportTeamDTO editSportTeam(SportTeamDTO st, int id) {
         EntityManager em = emf.createEntityManager();
 
         try {
             SportTeam sTeam = em.find(SportTeam.class, id);
-            
+
             if (st.getTeamName().length() != 0) {
                 sTeam.setTeamName(st.getTeamName());
             }
-            
+
             if (st.getPricePerYear() > 0) {
                 sTeam.setPricePerYear(st.getPricePerYear());
             }
-            
+
             if (st.getMinAge() > 0) {
                 sTeam.setMinAge(st.getMinAge());
             }
-            
+
             if (st.getMaxAge() > 0) {
                 sTeam.setMaxAge(st.getMaxAge());
-            }                     
+            }
 
             em.getTransaction().begin();
 
@@ -143,7 +138,7 @@ public class SportFacade {
             em.close();
         }
     }
-    
+
     public SportTeamDTO deleteSportTeam(int id) {
         EntityManager em = emf.createEntityManager();
 

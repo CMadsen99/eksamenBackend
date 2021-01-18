@@ -1,13 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package rest;
 
 import dto.SportDTO;
 import dto.SportTeamDTO;
-import dto.UserDTO;
 import entities.Role;
 import entities.Sport;
 import entities.SportTeam;
@@ -40,7 +34,7 @@ import utils.EMF_Creator;
 
 /**
  *
- * @author Acer
+ * @author Achristianmadsen
  */
 public class SportResourceTest {
 
